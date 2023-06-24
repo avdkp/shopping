@@ -1,7 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"example.com/shopping/handlers"
+	"example.com/shopping/services"
+	"log"
+	"net/http"
+
+	"github.com/gorilla/mux"
+)
 
 func main() {
-	fmt.Print("hello world")
+	router := mux.NewRouter()
+
+	userHandler := handlers.NewUserHandler(services.NewUserService())
+	router.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
+
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
