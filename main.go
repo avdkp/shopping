@@ -14,6 +14,7 @@ func main() {
 
 	userHandler := handlers.NewUserHandler(services.NewUserService())
 	router.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
+	router.HandleFunc("/login", userHandler.Login).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
