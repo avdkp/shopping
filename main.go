@@ -12,6 +12,7 @@ import (
 
 func main() {
 	router := mux.NewRouter()
+
 	userService := services.GetUserService()
 	authService := services.GetAuthService()
 	inventoryService := services.NewInventoryService()

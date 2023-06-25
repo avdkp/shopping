@@ -45,7 +45,7 @@ func (cH *cartHandler) AddToCart(w http.ResponseWriter, r *http.Request) {
 	if len(unAddedItems) > 0 {
 		w.WriteHeader(http.StatusPartialContent)
 		response := strings.Trim(strings.Join(strings.Split(fmt.Sprint(unAddedItems), " "), ","), "[]")
-		_, err = w.Write([]byte(response))
+		_, err = w.Write([]byte(response + " - items could not be added"))
 		if err != nil {
 			fmt.Print("could not write the response")
 		}
@@ -72,7 +72,7 @@ func (cH *cartHandler) RemoveFromCart(w http.ResponseWriter, r *http.Request) {
 	if len(unRemovedItems) > 0 {
 		w.WriteHeader(http.StatusPartialContent)
 		response := strings.Trim(strings.Join(strings.Split(fmt.Sprint(unRemovedItems), " "), ","), "[]")
-		_, err = w.Write([]byte(response))
+		_, err = w.Write([]byte(response + " - items could not be removed"))
 		if err != nil {
 			fmt.Print("could not write the response")
 		}

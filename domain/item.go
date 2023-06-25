@@ -6,5 +6,5 @@ type Item struct {
 	Id          int      `json:"id"`
 	Name        ItemName `json:"name"`
 	Description string   `json:"description"`
-	Available   bool
+	Available   bool     `json:"available"`
 }
