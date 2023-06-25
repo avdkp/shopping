@@ -8,7 +8,10 @@ Assumptions
 
 
 Setup
--  `make build`
+- `make build`
+
+Run
+- `make run`
 
 Run Test
-Run `make `
+- `make test`
