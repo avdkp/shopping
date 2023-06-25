@@ -69,7 +69,7 @@ func (uh *userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := LoginResponse{
-		Token: token,
+		Token: string(token),
 	}
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(http.StatusOK)

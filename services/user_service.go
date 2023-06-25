@@ -12,27 +12,46 @@ const (
 
 type userDetails struct {
 	domain.User
-	token string
+	token domain.Token
 }
 
 type userService struct {
 	lock   sync.Mutex
 	lastId int
 	users  map[string]userDetails
-	tokens map[string]string
+	tokens map[domain.Token]string
 }
 
 type UserService interface {
 	Create(user domain.User) error
-	Login(user domain.User) (string, error)
+	Login(user domain.User) (domain.Token, error)
 }
 
-func NewUserService() UserService {
-	return &userService{
+var usrSvc *userService
+
+type AuthService interface {
+	IsAdmin(token domain.Token) error
+	IsLoggedIn(token domain.Token) error
+}
+
+func initializeUserService() {
+	usrSvc = &userService{
 		lastId: 1,
 		users:  make(map[string]userDetails),
-		tokens: make(map[string]string),
+		tokens: make(map[domain.Token]string),
 	}
+}
+func GetAuthService() AuthService {
+	if usrSvc == nil {
+		initializeUserService()
+	}
+	return usrSvc
+}
+func GetUserService() UserService {
+	if usrSvc == nil {
+		initializeUserService()
+	}
+	return usrSvc
 }
 
 func randomString(length int) string {
@@ -44,9 +63,9 @@ func randomString(length int) string {
 	return string(b)
 }
 
-func (us *userService) generateRandomToken() string {
+func (us *userService) generateRandomToken() domain.Token {
 	for true {
-		token := randomString(tokenLength)
+		token := domain.Token(randomString(tokenLength))
 		_, exists := us.tokens[token]
 		if !exists {
 			return token
@@ -70,7 +89,7 @@ func (us *userService) Create(user domain.User) error {
 	return nil
 }
 
-func (us *userService) Login(user domain.User) (string, error) {
+func (us *userService) Login(user domain.User) (domain.Token, error) {
 	user1, found := us.users[user.UserName]
 	if !found {
 		return "", domain.UserNotFoundError
@@ -88,4 +107,27 @@ func (us *userService) Login(user domain.User) (string, error) {
 		return token, nil
 	}
 	return "", domain.UnAuthorizedError
+}
+
+func (us *userService) IsAdmin(token domain.Token) error {
+	userName, exists := us.tokens[token]
+	if !exists {
+		return domain.InvalidTokenError
+	}
+	user, exist := us.users[userName]
+	if !exist {
+		return domain.InvalidTokenError
+	}
+	if user.Role == domain.AdminRole {
+		return nil
+	}
+	return domain.UnAuthorizedError
+}
+
+func (us *userService) IsLoggedIn(token domain.Token) error {
+	_, exists := us.tokens[token]
+	if !exists {
+		return domain.InvalidTokenError
+	}
+	return nil
 }
