@@ -12,7 +12,7 @@ type authorizationMiddleware struct {
 }
 
 type AuthorizationMiddleware interface {
-	AuthorizationCreator(role string) func(next http.Handler) http.Handler
+	AuthorizationMiddlewareCreator(role string) func(next http.Handler) http.Handler
 }
 
 func NewAuthMiddleware(authSvc services.AuthService) AuthorizationMiddleware {
@@ -21,7 +21,7 @@ func NewAuthMiddleware(authSvc services.AuthService) AuthorizationMiddleware {
 	}
 }
 
-func (aM *authorizationMiddleware) AuthorizationCreator(roleType string) func(next http.Handler) http.Handler {
+func (aM *authorizationMiddleware) AuthorizationMiddlewareCreator(roleType string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token := r.Header.Get("Auth-Token")

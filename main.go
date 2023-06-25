@@ -29,12 +29,12 @@ func main() {
 	publicRouter.HandleFunc("/login", userHandler.Login).Methods("POST")
 
 	adminRouter := router.PathPrefix("/admin").Subrouter()
-	adminRouter.Use(authMiddleware.AuthorizationCreator(domain.AdminRole))
+	adminRouter.Use(authMiddleware.AuthorizationMiddlewareCreator(domain.AdminRole))
 	adminRouter.HandleFunc("/add-items", inventoryHandler.AddItems).Methods("POST")
 	adminRouter.HandleFunc("/suspend/user/{user-id}", userHandler.SuspendUser).Methods("PATCH")
 
 	userRouter := router.PathPrefix("").Subrouter()
-	userRouter.Use(authMiddleware.AuthorizationCreator(domain.UserRole))
+	userRouter.Use(authMiddleware.AuthorizationMiddlewareCreator(domain.UserRole))
 	userRouter.HandleFunc("/all-items", inventoryHandler.GetItems).Methods("GET")
 	userRouter.HandleFunc("/add-to-cart", cartHandler.AddToCart).Methods("PATCH")
 	userRouter.HandleFunc("/remove-from-cart", cartHandler.RemoveFromCart).Methods("PATCH")
