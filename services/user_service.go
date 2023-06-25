@@ -16,15 +16,17 @@ type userDetails struct {
 }
 
 type userService struct {
-	lock   sync.Mutex
-	lastId int
-	users  map[string]userDetails
-	tokens map[domain.Token]string
+	lock           sync.Mutex
+	lastId         int
+	users          map[string]userDetails
+	suspendedUsers map[string]userDetails
+	tokens         map[domain.Token]string
 }
 
 type UserService interface {
 	Create(user domain.User) error
 	Login(user domain.User) (domain.Token, error)
+	SuspendUser(userId string) error
 }
 
 var usrSvc *userService
@@ -121,4 +123,15 @@ func (us *userService) MatchRoleType(token domain.Token, role string) (int, erro
 		return user.Id, nil
 	}
 	return -1, domain.UnAuthorizedError
+}
+
+func (us *userService) SuspendUser(userName string) error {
+	user, found := us.users[userName]
+	if !found {
+		return domain.UserNotFoundError
+	}
+	delete(us.users, userName)
+	delete(us.tokens, user.token)
+	us.suspendedUsers[userName] = user
+	return nil
 }

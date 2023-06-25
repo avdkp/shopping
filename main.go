@@ -30,6 +30,7 @@ func main() {
 	adminRouter := router.PathPrefix("/admin").Subrouter()
 	adminRouter.Use(authMiddleware.AuthorizeAdmin)
 	adminRouter.HandleFunc("/add-items", inventoryHandler.AddItems).Methods("POST")
+	adminRouter.HandleFunc("/suspend/user/{user-id}", userHandler.SuspendUser).Methods("PATCH")
 
 	userRouter := router.PathPrefix("").Subrouter()
 	userRouter.Use(authMiddleware.AuthorizeUser)

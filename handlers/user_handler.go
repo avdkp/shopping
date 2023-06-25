@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 
 	"example.com/shopping/domain"
@@ -20,6 +21,7 @@ type userHandler struct {
 type UserHandler interface {
 	CreateUser(w http.ResponseWriter, r *http.Request)
 	Login(w http.ResponseWriter, r *http.Request)
+	SuspendUser(w http.ResponseWriter, r *http.Request)
 }
 
 func NewUserHandler(svc services.UserService) UserHandler {
@@ -82,4 +84,15 @@ func (uh *userHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Print("Error in writing the response ", err)
 	}
+}
+
+func (uh *userHandler) SuspendUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userId := vars["user-id"]
+	err := uh.userSvc.SuspendUser(userId)
+	if err == domain.UserNotFoundError {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
