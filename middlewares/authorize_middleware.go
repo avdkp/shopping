@@ -3,6 +3,7 @@ package middlewares
 import (
 	"example.com/shopping/domain"
 	"example.com/shopping/services"
+	"fmt"
 	"net/http"
 )
 
@@ -12,7 +13,7 @@ type authorizationMiddleware struct {
 
 type AuthorizationMiddleware interface {
 	AuthorizeAdmin(next http.Handler) http.Handler
-	IsLoggedIn(next http.Handler) http.Handler
+	AuthorizeUser(next http.Handler) http.Handler
 }
 
 func NewAuthMiddleware(authSvc services.AuthService) AuthorizationMiddleware {
@@ -24,7 +25,8 @@ func NewAuthMiddleware(authSvc services.AuthService) AuthorizationMiddleware {
 func (aM *authorizationMiddleware) AuthorizeAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get("Auth-Token")
-		err := aM.authService.IsAdmin(domain.Token(token))
+		userId, err := aM.authService.MatchRoleType(domain.Token(token), domain.AdminRole)
+		r.Header.Set("X-User-Id", fmt.Sprintf("%d", userId))
 		if err == nil {
 			next.ServeHTTP(w, r)
 		} else {
@@ -33,10 +35,11 @@ func (aM *authorizationMiddleware) AuthorizeAdmin(next http.Handler) http.Handle
 	})
 }
 
-func (aM *authorizationMiddleware) IsLoggedIn(next http.Handler) http.Handler {
+func (aM *authorizationMiddleware) AuthorizeUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get("Auth-Token")
-		err := aM.authService.IsLoggedIn(domain.Token(token))
+		userId, err := aM.authService.MatchRoleType(domain.Token(token), domain.UserRole)
+		r.Header.Set("X-User-Id", fmt.Sprintf("%d", userId))
 		if err == nil {
 			next.ServeHTTP(w, r)
 		} else {

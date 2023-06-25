@@ -26,5 +26,10 @@ func main() {
 	adminRouter.Use(authMiddleware.AuthorizeAdmin)
 	adminRouter.HandleFunc("/add-items", inventoryHandler.AddItems).Methods("POST")
 
+	userRouter := router.PathPrefix("").Subrouter()
+	userRouter.Use(authMiddleware.AuthorizeUser)
+	userRouter.HandleFunc("/all-items", inventoryHandler.GetItems).Methods("GET")
+	userRouter.HandleFunc("/add-to-cart", inventoryHandler.AddToCart).Methods("POST")
+
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

@@ -30,8 +30,7 @@ type UserService interface {
 var usrSvc *userService
 
 type AuthService interface {
-	IsAdmin(token domain.Token) error
-	IsLoggedIn(token domain.Token) error
+	MatchRoleType(token domain.Token, role string) (int, error)
 }
 
 func initializeUserService() {
@@ -54,7 +53,7 @@ func GetUserService() UserService {
 	return usrSvc
 }
 
-func randomString(length int) string {
+func RandomString(length int) string {
 	b := make([]byte, length)
 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	for i := range b {
@@ -65,7 +64,7 @@ func randomString(length int) string {
 
 func (us *userService) generateRandomToken() domain.Token {
 	for true {
-		token := domain.Token(randomString(tokenLength))
+		token := domain.Token(RandomString(tokenLength))
 		_, exists := us.tokens[token]
 		if !exists {
 			return token
@@ -109,25 +108,17 @@ func (us *userService) Login(user domain.User) (domain.Token, error) {
 	return "", domain.UnAuthorizedError
 }
 
-func (us *userService) IsAdmin(token domain.Token) error {
+func (us *userService) MatchRoleType(token domain.Token, role string) (int, error) {
 	userName, exists := us.tokens[token]
 	if !exists {
-		return domain.InvalidTokenError
+		return -1, domain.InvalidTokenError
 	}
 	user, exist := us.users[userName]
 	if !exist {
-		return domain.InvalidTokenError
+		return -1, domain.InvalidTokenError
 	}
-	if user.Role == domain.AdminRole {
-		return nil
+	if user.Role == role {
+		return user.Id, nil
 	}
-	return domain.UnAuthorizedError
-}
-
-func (us *userService) IsLoggedIn(token domain.Token) error {
-	_, exists := us.tokens[token]
-	if !exists {
-		return domain.InvalidTokenError
-	}
-	return nil
+	return -1, domain.UnAuthorizedError
 }
