@@ -17,6 +17,12 @@ type CartHandler interface {
 	AddToCart(w http.ResponseWriter, r *http.Request)
 }
 
+func NewCartHandler(cartSvc services.CartService) CartHandler {
+	return &cartHandler{
+		cartService: cartSvc,
+	}
+}
+
 func (cH *cartHandler) AddToCart(w http.ResponseWriter, r *http.Request) {
 	var itemIds []int
 	userIdStr := r.Header.Get("X-User-Id")

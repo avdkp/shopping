@@ -14,9 +14,13 @@ func main() {
 	router := mux.NewRouter()
 	userService := services.GetUserService()
 	authService := services.GetAuthService()
+	inventoryService := services.NewInventoryService()
+	cartService := services.NewCartService(inventoryService)
+
 	authMiddleware := middlewares.NewAuthMiddleware(authService)
 	userHandler := handlers.NewUserHandler(userService)
-	inventoryHandler := handlers.NewInventoryHandler(services.NewInventoryService())
+	inventoryHandler := handlers.NewInventoryHandler(inventoryService)
+	cartHandler := handlers.NewCartHandler(cartService)
 
 	publicRouter := router.PathPrefix("/public").Subrouter()
 	publicRouter.HandleFunc("/users", userHandler.CreateUser).Methods("POST")
@@ -29,7 +33,8 @@ func main() {
 	userRouter := router.PathPrefix("").Subrouter()
 	userRouter.Use(authMiddleware.AuthorizeUser)
 	userRouter.HandleFunc("/all-items", inventoryHandler.GetItems).Methods("GET")
-	userRouter.HandleFunc("/add-to-cart", inventoryHandler.AddToCart).Methods("POST")
+
+	userRouter.HandleFunc("/add-to-cart", cartHandler.AddToCart).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

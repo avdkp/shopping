@@ -9,8 +9,16 @@ type cartService struct {
 }
 
 type CartService interface {
-	GetCart(userId int) domain.Cart
+	GetCart(userId int) (domain.Cart, error)
 	AddToCart(userId int, items []int) ([]int, error)
+}
+
+func NewCartService(invSvc InventoryService) CartService {
+	return &cartService{
+		userCart:         make(map[int]int),
+		carts:            make(map[int]domain.Cart),
+		inventoryService: invSvc,
+	}
 }
 
 func (cS *cartService) AddToCart(cartId int, items []int) ([]int, error) {
