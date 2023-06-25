@@ -24,7 +24,7 @@ test:
 
 # Dependency management target
 deps:
-	$(GOGET) github.com/some/package
+	go get ./...
 
 # Run the application
 run:

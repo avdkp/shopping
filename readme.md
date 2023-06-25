@@ -5,4 +5,10 @@ Assumptions
 - There is no mechanism to eventually unlock resources in case of failures/timeouts etc
 - There is no logger, so in case of failures, errors have just been printed on screen.
 - Assumption has been made, that admin can not access APIs intended for regular userRole.
-- 
+
+
+Setup
+-  `make build`
+
+Run Test
+Run `make `
