@@ -33,8 +33,8 @@ func main() {
 	userRouter := router.PathPrefix("").Subrouter()
 	userRouter.Use(authMiddleware.AuthorizeUser)
 	userRouter.HandleFunc("/all-items", inventoryHandler.GetItems).Methods("GET")
-
-	userRouter.HandleFunc("/add-to-cart", cartHandler.AddToCart).Methods("POST")
+	userRouter.HandleFunc("/add-to-cart", cartHandler.AddToCart).Methods("PATCH")
+	userRouter.HandleFunc("/remove-from-cart", cartHandler.RemoveFromCart).Methods("PATCH")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

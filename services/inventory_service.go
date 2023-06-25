@@ -15,7 +15,8 @@ type inventoryService struct {
 type InventoryService interface {
 	AddItems(items []domain.Item) error
 	GetAllItems() []domain.Item
-	MarkUnavailable(itemId int) error
+	MarkUnavailable(itemId int, userId int) error
+	MarkAvailable(itemId int, userId int) error
 }
 
 func NewInventoryService() InventoryService {
@@ -51,7 +52,7 @@ func (iS *inventoryService) GetAllItems() []domain.Item {
 	return result
 }
 
-func (iS *inventoryService) MarkUnavailable(itemId int) error {
+func (iS *inventoryService) MarkUnavailable(itemId int, userId int) error {
 	item, found := iS.items[itemId]
 	if !found {
 		return domain.ItemNotFoundError
@@ -60,16 +61,34 @@ func (iS *inventoryService) MarkUnavailable(itemId int) error {
 		return domain.ItemUnAvailableError
 	}
 
-	randomKey := RandomString(10)
-	_, alreadyPresent := iS.itemLocks.LoadOrStore(itemId, randomKey)
+	_, alreadyPresent := iS.itemLocks.LoadOrStore(itemId, userId)
 	if alreadyPresent {
+		//Lock was acquired by someone else
+		return domain.ItemUnAvailableError
+	}
+
+	item.Available = false
+	iS.items[item.Id] = item
+	return nil
+}
+
+func (iS *inventoryService) MarkAvailable(itemId int, userId int) error {
+	item, found := iS.items[itemId]
+	if !found {
+		return domain.ItemNotFoundError
+	}
+	if item.Available == true {
+		return nil
+	}
+	existingValue, alreadyPresent := iS.itemLocks.Load(itemId)
+	if alreadyPresent && existingValue != userId {
 		//Lock was acquired by someone else
 		return domain.ItemUnAvailableError
 	}
 	//lock was acquired for itemID
 	defer iS.itemLocks.Delete(itemId)
 
-	item.Available = false
+	item.Available = true
 	iS.items[item.Id] = item
 	return nil
 }

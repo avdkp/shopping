@@ -1,6 +1,6 @@
 package domain
 
 type Cart struct {
-	Id    int
-	Items map[int]struct{} //cartId
+	UserID int
+	Items  map[int]struct{} //cartId
 }
