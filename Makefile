@@ -11,7 +11,7 @@ BUILDDIR = build
 # Build target
 build:
 	mkdir -p $(BUILDDIR)
-	$(GOBUILD) -o $(BUILDDIR)/myapp
+	$(GOBUILD) -o $(BUILDDIR)/shopping-cart
 
 # Clean target
 clean:
@@ -28,8 +28,8 @@ deps:
 
 # Run the application
 run:
-	$(GOBUILD) -o $(BUILDDIR)/myapp
-	./$(BUILDDIR)/myapp
+	$(GOBUILD) -o $(BUILDDIR)/shopping-cart
+	./$(BUILDDIR)/shopping-cart
 
 # Default target
 default: build
