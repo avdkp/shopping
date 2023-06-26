@@ -9,4 +9,5 @@ var (
 	ItemUnAvailableError = errors.New("item not available")
 	InvalidTokenError    = errors.New("token invalid")
 	UnAuthorizedError    = errors.New("request unauthorized")
+	InvalidItemError     = errors.New("invalid item(s), name is mandatory")
 )

@@ -6,10 +6,10 @@ import (
 )
 
 type inventoryService struct {
-	lock      sync.Mutex
+	lock      *sync.Mutex
 	lastId    int
 	items     map[int]domain.Item
-	itemLocks sync.Map
+	itemLocks *sync.Map
 }
 
 type InventoryService interface {
@@ -21,8 +21,10 @@ type InventoryService interface {
 
 func NewInventoryService() InventoryService {
 	return &inventoryService{
-		lastId: 0,
-		items:  make(map[int]domain.Item),
+		lastId:    0,
+		items:     make(map[int]domain.Item),
+		lock:      &sync.Mutex{},
+		itemLocks: &sync.Map{},
 	}
 }
 
@@ -35,11 +37,23 @@ func (iS *inventoryService) addItemInInventory(item domain.Item) {
 }
 
 func (iS *inventoryService) AddItems(items []domain.Item) error {
+	if !valid(items) {
+		return domain.InvalidItemError
+	}
 	for _, item := range items {
 		item.Available = true
 		iS.addItemInInventory(item)
 	}
 	return nil
+}
+
+func valid(items []domain.Item) bool {
+	for _, item := range items {
+		if item.Name == "" {
+			return false
+		}
+	}
+	return true
 }
 
 func (iS *inventoryService) GetAllItems() []domain.Item {

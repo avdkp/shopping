@@ -8,6 +8,7 @@ Assumptions
 
 
 Setup
+- `make deps`
 - `make build`
 
 Run

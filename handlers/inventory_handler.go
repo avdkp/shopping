@@ -35,7 +35,7 @@ func (iH *inventoryHandler) AddItems(w http.ResponseWriter, r *http.Request) {
 	err = iH.inventoryService.AddItems(req)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	w.WriteHeader(http.StatusCreated)
